@@ -1,5 +1,5 @@
 import mediapipe as mp
-from utils import MODEL_PATH
+from constants import MODEL_PATH
 
 class Landmarker():
     def __init__(self):
