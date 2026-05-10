@@ -1,16 +1,8 @@
-import cv2
-import time
 import mediapipe as mp
-from mediapipe.tasks import python
-from mediapipe.tasks.python import vision
-
 
 MODEL_PATH = "models/face_landmarker_v2_with_blendshapes.task"
 
 class Landmarker():
-
-    
-
     def __init__(self):
         BaseOptions = mp.tasks.BaseOptions
         FaceLandmarker = mp.tasks.vision.FaceLandmarker
@@ -18,21 +10,36 @@ class Landmarker():
         FaceLandmarkerResult = mp.tasks.vision.FaceLandmarkerResult
         VisionRunningMode = mp.tasks.vision.RunningMode
 
-        # Global variable to hold the most recent results from the async callback
-        latest_landmarks = None
+        self.latest_landmarks = None
 
-
-        # Callback function to update global state
+        # Callback function to update instance state
         def update_result(result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
-            global latest_landmarks
             if result.face_landmarks:
                 # We only care about the first face detected
-                latest_landmarks = result.face_landmarks[0]
+                self.latest_landmarks = result.face_landmarks[0]
             else:
-                latest_landmarks = None
+                self.latest_landmarks = None
 
+        options = FaceLandmarkerOptions(
+            base_options=BaseOptions(model_asset_path=MODEL_PATH),
+            running_mode=VisionRunningMode.LIVE_STREAM,
+            num_faces=1,
+            min_face_detection_confidence=0.5,
+            min_face_presence_confidence=0.5,
+            min_tracking_confidence=0.5,
+            result_callback=update_result,
+        )
 
-        # Thresholds
-        eye_opening_threshold = 0.025
-        mouth_open_threshold = 0.03
-        squinting_threshold = 0.018
+        self.landmarker = FaceLandmarker.create_from_options(options)
+
+    def to_mp_image(self, rgb_image):
+        return mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_image)
+
+    def detect_async(self, mp_image, timestamp_ms):
+        self.landmarker.detect_async(mp_image, timestamp_ms)
+
+    def get_latest_landmarks(self):
+        return self.latest_landmarks
+
+    def terminate(self):
+        self.landmarker.close()
