@@ -1,9 +1,11 @@
+from utils import EYE_OPENING_THRESHOLD, MOUTH_OPEN_THRESHOLD, SQUINTING_THRESHOLD
+
 class PngSelector():
     def __init__(self):
         # Thresholds
-        self.eye_opening_threshold = 0.025
-        self.mouth_open_threshold = 0.03
-        self.squinting_threshold = 0.018
+        self.eye_opening_threshold = EYE_OPENING_THRESHOLD
+        self.mouth_open_threshold = MOUTH_OPEN_THRESHOLD
+        self.squinting_threshold = SQUINTING_THRESHOLD
 
     def cat_shock(self, face_landmarks):
         l_top = face_landmarks[159]

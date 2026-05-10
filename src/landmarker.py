@@ -1,6 +1,5 @@
 import mediapipe as mp
-
-MODEL_PATH = "models/face_landmarker_v2_with_blendshapes.task"
+from utils import MODEL_PATH
 
 class Landmarker():
     def __init__(self):
