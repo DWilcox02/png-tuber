@@ -25,15 +25,28 @@ class VideoCapture():
     def show_frame(self, image, title="Face Detection"):
         cv2.imshow(title, image)
 
-    def show_cat(self, cat_image_path, fallback_image=None):
+    def show_cat(self, cat_image_path, fallback_image=None, blendshapes=None):
         cat = cv2.imread(cat_image_path)
         if cat is not None:
             cat = cv2.resize(cat, (640, 480))
-            cv2.imshow("Cat Image", cat)
         elif fallback_image is not None:
-            blank = np.zeros_like(fallback_image)
-            cv2.putText(blank, f"Missing: {cat_image_path}", (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            cv2.imshow("Cat Image", blank)
+            cat = np.zeros((480, 640, 3), dtype=np.uint8)
+            cv2.putText(cat, f"Missing: {cat_image_path}", (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        
+        if cat is not None and blendshapes is not None:
+            # Sort blendshapes by score descending and take top 10
+            sorted_blendshapes = sorted(blendshapes, key=lambda x: x.score, reverse=True)[:10]
+            
+            # Overlay blendshapes on the image
+            for i, category in enumerate(sorted_blendshapes):
+                text = f"{category.category_name}: {category.score:.2f}"
+                y_pos = 30 + (i * 25)
+                # Draw text with shadow for better visibility
+                cv2.putText(cat, text, (12, y_pos + 2), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+                cv2.putText(cat, text, (10, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+
+        if cat is not None:
+            cv2.imshow("Cat Image", cat)
 
     def wait_esc(self, delay=1):
         key = cv2.waitKey(delay)

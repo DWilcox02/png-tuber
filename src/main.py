@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
             video_capture.show_frame(image)
 
-            video_capture.show_cat(cat_image, fallback_image=image)
+            video_capture.show_cat(cat_image, fallback_image=image, blendshapes=latest_blendshapes)
 
             # Press 'ESC' to exit
             if video_capture.wait_esc():

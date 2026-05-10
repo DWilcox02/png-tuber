@@ -23,26 +23,26 @@ class PngSelector():
             r_blink = self.get_blendshape_score(blendshapes, "eyeBlinkRight")
             return (l_blink + r_blink) < 0.1 # Very open eyes
         
-        # Fallback to landmarks
-        l_top = face_landmarks[LANDMARK_INDICES["LEFT_EYE_TOP"]]
-        l_bot = face_landmarks[LANDMARK_INDICES["LEFT_EYE_BOTTOM"]]
-        r_top = face_landmarks[LANDMARK_INDICES["RIGHT_EYE_TOP"]]
-        r_bot = face_landmarks[LANDMARK_INDICES["RIGHT_EYE_BOTTOM"]]
+        # # Fallback to landmarks
+        # l_top = face_landmarks[LANDMARK_INDICES["LEFT_EYE_TOP"]]
+        # l_bot = face_landmarks[LANDMARK_INDICES["LEFT_EYE_BOTTOM"]]
+        # r_top = face_landmarks[LANDMARK_INDICES["RIGHT_EYE_TOP"]]
+        # r_bot = face_landmarks[LANDMARK_INDICES["RIGHT_EYE_BOTTOM"]]
 
-        eye_opening = (abs(l_top.y - l_bot.y) + abs(r_top.y - r_bot.y)) / 2.0
-        return eye_opening > self.eye_opening_threshold
+        # eye_opening = (abs(l_top.y - l_bot.y) + abs(r_top.y - r_bot.y)) / 2.0
+        # return eye_opening > self.eye_opening_threshold
 
     def cat_tongue(self, face_landmarks, blendshapes=None):
         if blendshapes:
             # Using blendshapes for mouth open
             return self.get_blendshape_score(blendshapes, "jawOpen") > 0.4
             
-        # Fallback to landmarks
-        top_lip = face_landmarks[LANDMARK_INDICES["UPPER_LIP"]]
-        bottom_lip = face_landmarks[LANDMARK_INDICES["LOWER_LIP"]]
+        # # Fallback to landmarks
+        # top_lip = face_landmarks[LANDMARK_INDICES["UPPER_LIP"]]
+        # bottom_lip = face_landmarks[LANDMARK_INDICES["LOWER_LIP"]]
 
-        mouth_open = abs(top_lip.y - bottom_lip.y)
-        return mouth_open > self.mouth_open_threshold
+        # mouth_open = abs(top_lip.y - bottom_lip.y)
+        # return mouth_open > self.mouth_open_threshold
 
     def cat_glare(self, face_landmarks, blendshapes=None):
         if blendshapes:
@@ -51,14 +51,14 @@ class PngSelector():
             r_blink = self.get_blendshape_score(blendshapes, "eyeBlinkRight")
             return (l_blink + r_blink) > 1.2 # Squinting
             
-        # Fallback to landmarks
-        l_top = face_landmarks[LANDMARK_INDICES["LEFT_EYE_TOP"]]
-        l_bot = face_landmarks[LANDMARK_INDICES["LEFT_EYE_BOTTOM"]]
-        r_top = face_landmarks[LANDMARK_INDICES["RIGHT_EYE_TOP"]]
-        r_bot = face_landmarks[LANDMARK_INDICES["RIGHT_EYE_BOTTOM"]]
+        # # Fallback to landmarks
+        # l_top = face_landmarks[LANDMARK_INDICES["LEFT_EYE_TOP"]]
+        # l_bot = face_landmarks[LANDMARK_INDICES["LEFT_EYE_BOTTOM"]]
+        # r_top = face_landmarks[LANDMARK_INDICES["RIGHT_EYE_TOP"]]
+        # r_bot = face_landmarks[LANDMARK_INDICES["RIGHT_EYE_BOTTOM"]]
 
-        eye_squint = (abs(l_top.y - l_bot.y) + abs(r_top.y - r_bot.y)) / 2.0
-        return eye_squint < self.squinting_threshold
+        # eye_squint = (abs(l_top.y - l_bot.y) + abs(r_top.y - r_bot.y)) / 2.0
+        # return eye_squint < self.squinting_threshold
 
     def get_cat_image(self, latest_landmarks, latest_blendshapes=None):
         # Default cat state
