@@ -25,13 +25,16 @@ if __name__ == "__main__":
 
             latest_landmarks = landmarker.get_latest_landmarks()
             latest_blendshapes = landmarker.get_latest_blendshapes()
-            cat_image = png_selector.get_cat_image(latest_landmarks, latest_blendshapes)
+
+            # get_cat_image now returns (image_path, status)
+            cat_image, status = png_selector.get_cat_image(latest_landmarks, latest_blendshapes)
 
             video_capture.draw_landmarks(image, latest_landmarks)
 
             video_capture.show_frame(image)
 
-            video_capture.show_cat(cat_image, fallback_image=image, blendshapes=latest_blendshapes)
+            # show_cat now accepts the image and the status object
+            video_capture.show_cat(cat_image, facial_status=status)
 
             # Press 'ESC' to exit
             if video_capture.wait_esc():
@@ -40,3 +43,4 @@ if __name__ == "__main__":
         png_selector.terminate()
         landmarker.terminate()
         video_capture.terminate()
+

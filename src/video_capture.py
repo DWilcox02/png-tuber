@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from facial_features.facial_analysis import calc_eye_status
+from facial_features.facial_analysis import FacialStatus
 
 class VideoCapture():
     def __init__(self, camera_index=0):
@@ -26,41 +26,30 @@ class VideoCapture():
     def show_frame(self, image, title="Face Detection"):
         cv2.imshow(title, image)
 
-    def show_cat(self, cat_image_path, fallback_image=None, blendshapes=None):
+    def show_cat(self, cat_image_path, facial_status: FacialStatus = None):
         cat = cv2.imread(cat_image_path)
         if cat is not None:
             cat = cv2.resize(cat, (640, 480))
-        elif fallback_image is not None:
+        else:
             cat = np.zeros((480, 640, 3), dtype=np.uint8)
             cv2.putText(cat, f"Missing: {cat_image_path}", (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
         
-        if cat is not None and blendshapes is not None:
-            # Extract blink scores
-            left_blink = 0.0
-            right_blink = 0.0
-            for category in blendshapes:
-                if category.category_name == "eyeBlinkLeft":
-                    left_blink = category.score
-                elif category.category_name == "eyeBlinkRight":
-                    right_blink = category.score
-
-            # Calculate statuses
-            left_status = calc_eye_status(left_blink)
-            right_status = calc_eye_status(right_blink)
-
+        if facial_status is not None:
             # Display statuses
-            left_text = f"Left Eye: {left_status.value}"
-            right_text = f"Right Eye: {right_status.value}"
+            status_lines = [
+                f"Left Eye: {facial_status.left_eye.value}",
+                f"Right Eye: {facial_status.right_eye.value}",
+                f"Mouth: {facial_status.mouth.value}",
+                f"Smile: {facial_status.smile.value}"
+            ]
 
-            # Shadowed text for visibility
-            cv2.putText(cat, left_text, (12, 32), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2)
-            cv2.putText(cat, left_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
-            
-            cv2.putText(cat, right_text, (12, 62), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2)
-            cv2.putText(cat, right_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
+            for i, text in enumerate(status_lines):
+                y_pos = 35 + (i * 35)
+                # Shadowed text for visibility
+                cv2.putText(cat, text, (12, y_pos + 2), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2)
+                cv2.putText(cat, text, (10, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 1)
 
-        if cat is not None:
-            cv2.imshow("Cat Image", cat)
+        cv2.imshow("Cat Image", cat)
 
     def wait_esc(self, delay=1):
         key = cv2.waitKey(delay)
