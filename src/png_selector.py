@@ -1,4 +1,7 @@
 from utils import EYE_OPENING_THRESHOLD, MOUTH_OPEN_THRESHOLD, SQUINTING_THRESHOLD, LANDMARK_INDICES
+from facial_features.facial_enums import EyeStatus, MouthStatus, SmileStatus
+
+
 
 class PngSelector():
     def __init__(self):

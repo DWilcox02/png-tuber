@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from facial_features.facial_analysis import calc_eye_status
 
 class VideoCapture():
     def __init__(self, camera_index=0):
@@ -34,16 +35,29 @@ class VideoCapture():
             cv2.putText(cat, f"Missing: {cat_image_path}", (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
         
         if cat is not None and blendshapes is not None:
-            # Sort blendshapes by score descending and take top 10
-            sorted_blendshapes = sorted(blendshapes, key=lambda x: x.score, reverse=True)[:10]
+            # Extract blink scores
+            left_blink = 0.0
+            right_blink = 0.0
+            for category in blendshapes:
+                if category.category_name == "eyeBlinkLeft":
+                    left_blink = category.score
+                elif category.category_name == "eyeBlinkRight":
+                    right_blink = category.score
+
+            # Calculate statuses
+            left_status = calc_eye_status(left_blink)
+            right_status = calc_eye_status(right_blink)
+
+            # Display statuses
+            left_text = f"Left Eye: {left_status.value}"
+            right_text = f"Right Eye: {right_status.value}"
+
+            # Shadowed text for visibility
+            cv2.putText(cat, left_text, (12, 32), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2)
+            cv2.putText(cat, left_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
             
-            # Overlay blendshapes on the image
-            for i, category in enumerate(sorted_blendshapes):
-                text = f"{category.category_name}: {category.score:.2f}"
-                y_pos = 30 + (i * 25)
-                # Draw text with shadow for better visibility
-                cv2.putText(cat, text, (12, y_pos + 2), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
-                cv2.putText(cat, text, (10, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+            cv2.putText(cat, right_text, (12, 62), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2)
+            cv2.putText(cat, right_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
 
         if cat is not None:
             cv2.imshow("Cat Image", cat)
