@@ -24,7 +24,8 @@ if __name__ == "__main__":
             landmarker.detect_async(mp_image, timestamp_ms)
 
             latest_landmarks = landmarker.get_latest_landmarks()
-            cat_image = png_selector.get_cat_image(latest_landmarks)
+            latest_blendshapes = landmarker.get_latest_blendshapes()
+            cat_image = png_selector.get_cat_image(latest_landmarks, latest_blendshapes)
 
             video_capture.draw_landmarks(image, latest_landmarks)
 

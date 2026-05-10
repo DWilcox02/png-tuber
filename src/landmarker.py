@@ -10,6 +10,7 @@ class Landmarker():
         VisionRunningMode = mp.tasks.vision.RunningMode
 
         self.latest_landmarks = None
+        self.latest_blendshapes = None
 
         # Callback function to update instance state
         def update_result(result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
@@ -18,6 +19,11 @@ class Landmarker():
                 self.latest_landmarks = result.face_landmarks[0]
             else:
                 self.latest_landmarks = None
+            
+            if result.face_blendshapes:
+                self.latest_blendshapes = result.face_blendshapes[0]
+            else:
+                self.latest_blendshapes = None
 
         options = FaceLandmarkerOptions(
             base_options=BaseOptions(model_asset_path=MODEL_PATH),
@@ -26,6 +32,7 @@ class Landmarker():
             min_face_detection_confidence=0.5,
             min_face_presence_confidence=0.5,
             min_tracking_confidence=0.5,
+            output_face_blendshapes=True,
             result_callback=update_result,
         )
 
@@ -39,6 +46,9 @@ class Landmarker():
 
     def get_latest_landmarks(self):
         return self.latest_landmarks
+
+    def get_latest_blendshapes(self):
+        return self.latest_blendshapes
 
     def terminate(self):
         self.landmarker.close()

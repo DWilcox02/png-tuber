@@ -28,3 +28,4 @@ logs/
 *.pyc
 __pycache__
 assets
+mediapipe_example.ipynb
