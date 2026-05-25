@@ -2,7 +2,7 @@ import time
 from landmarker import Landmarker
 from png_selector import PngSelector
 from video_capture import VideoCapture
-from facial_features.facial_analysis import FacialStatusFactory
+from facial_features.facial_analysis import FacialAnalyzer
 from audio_processor import AudioProcessor
 
 
@@ -11,7 +11,8 @@ def main():
     video_capture = VideoCapture()
     landmarker = Landmarker()
     png_selector = PngSelector()
-    audio_processor = AudioProcessor()  # <-- Initialize Audio VAD
+    audio_processor = AudioProcessor()
+    facial_analyzer = FacialAnalyzer(flap_interval_sec=0.15)
 
     try:
         while True:
@@ -31,8 +32,7 @@ def main():
             latest_landmarks = landmarker.get_latest_landmarks()
             latest_blendshapes = landmarker.get_latest_blendshapes()
 
-            # <-- Pass microphone state into the factory
-            status = FacialStatusFactory.create(latest_blendshapes, is_talking=audio_processor.is_talking)
+            status = facial_analyzer.create_status(latest_blendshapes, is_talking=audio_processor.is_talking)
 
             # 4. Select and Display Assets
             cat_image_path = png_selector.select_image(status)
