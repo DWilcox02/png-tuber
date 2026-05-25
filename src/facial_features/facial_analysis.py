@@ -1,6 +1,11 @@
 from dataclasses import dataclass
 from typing import List, Optional
 from facial_features.facial_enums import EyeStatus, MouthStatus, SmileStatus
+from constants import (
+    EYE_OPEN_THRESHOLD, 
+    EYE_WIDE_THRESHOLD,
+    MOUTH_OPEN_THRESHOLD
+)
 
 @dataclass
 class FacialStatus:
@@ -15,15 +20,15 @@ class FacialStatusFactory:
 
     @staticmethod
     def _calc_eye_status(blink_value: float) -> EyeStatus:
-        if blink_value > 0.55:
+        if blink_value > EYE_OPEN_THRESHOLD:
             return EyeStatus.CLOSED
-        if blink_value < 0.05:
+        if blink_value < EYE_WIDE_THRESHOLD:
             return EyeStatus.WIDE
         return EyeStatus.OPEN
 
     @staticmethod
     def _calc_mouth_status(jaw_open_value: float) -> MouthStatus:
-        return MouthStatus.OPEN if jaw_open_value > 0.4 else MouthStatus.CLOSED
+        return MouthStatus.OPEN if jaw_open_value > MOUTH_OPEN_THRESHOLD else MouthStatus.CLOSED
 
     @staticmethod
     def _calc_smile_status(smile_value: float, frown_value: float) -> SmileStatus:

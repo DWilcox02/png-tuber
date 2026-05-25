@@ -4,7 +4,8 @@
 MODEL_PATH = "models/face_landmarker_v2_with_blendshapes.task"
 
 # Processing thresholds
-EYE_OPENING_THRESHOLD = 0.025
+EYE_OPEN_THRESHOLD = 0.55
+EYE_WIDE_THRESHOLD = 0.05
 MOUTH_OPEN_THRESHOLD = 0.03
 SQUINTING_THRESHOLD = 0.018
 
