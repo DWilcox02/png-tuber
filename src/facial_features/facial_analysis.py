@@ -1,19 +1,19 @@
 from dataclasses import dataclass
 from typing import List, Optional
 from facial_features.facial_enums import EyeStatus, MouthStatus, SmileStatus
-from constants import (
-    EYE_OPEN_THRESHOLD, 
-    EYE_WIDE_THRESHOLD,
-    MOUTH_OPEN_THRESHOLD
-)
+from constants import EYE_OPEN_THRESHOLD, EYE_WIDE_THRESHOLD, MOUTH_OPEN_THRESHOLD
+
 
 @dataclass
 class FacialStatus:
     """Container for discrete facial expression states."""
+
     left_eye: EyeStatus
     right_eye: EyeStatus
     mouth: MouthStatus
     smile: SmileStatus
+    is_talking: bool = False  # Track talking state
+
 
 class FacialStatusFactory:
     """Factory class to create FacialStatus objects from blendshape data."""
@@ -39,21 +39,27 @@ class FacialStatusFactory:
         return SmileStatus.NEUTRAL
 
     @classmethod
-    def create(cls, blendshapes) -> FacialStatus:
+    def create(cls, blendshapes, is_talking: bool = False) -> FacialStatus:
         """
         Extracts relevant scores from MediaPipe blendshapes and returns
         a structured FacialStatus object.
         """
         scores = {b.category_name: b.score for b in blendshapes} if blendshapes else {}
-        get = lambda name: scores.get(name, 0.0)
+        def get(name):
+            return scores.get(name, 0.0)
 
         # Average smile and frown scores across both sides
         avg_smile = (get("mouthSmileLeft") + get("mouthSmileRight")) / 2
         avg_frown = (get("mouthFrownLeft") + get("mouthFrownRight")) / 2
 
+        # Evaluate mouth state based on physical jaw drop OR microphone activity
+        physical_jaw_open = get("jawOpen") > MOUTH_OPEN_THRESHOLD
+        mouth_state = MouthStatus.OPEN if (physical_jaw_open or is_talking) else MouthStatus.CLOSED
+
         return FacialStatus(
             left_eye=cls._calc_eye_status(get("eyeBlinkLeft")),
             right_eye=cls._calc_eye_status(get("eyeBlinkRight")),
-            mouth=cls._calc_mouth_status(get("jawOpen")),
-            smile=cls._calc_smile_status(avg_smile, avg_frown)
+            mouth=mouth_state,
+            smile=cls._calc_smile_status(avg_smile, avg_frown),
+            is_talking=is_talking,
         )

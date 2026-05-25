@@ -3,12 +3,15 @@ from landmarker import Landmarker
 from png_selector import PngSelector
 from video_capture import VideoCapture
 from facial_features.facial_analysis import FacialStatusFactory
+from audio_processor import AudioProcessor
+
 
 def main():
     """Main execution loop for the PNG Tuber application."""
     video_capture = VideoCapture()
     landmarker = Landmarker()
     png_selector = PngSelector()
+    audio_processor = AudioProcessor()  # <-- Initialize Audio VAD
 
     try:
         while True:
@@ -27,11 +30,13 @@ def main():
             # 3. Analyze Facial State
             latest_landmarks = landmarker.get_latest_landmarks()
             latest_blendshapes = landmarker.get_latest_blendshapes()
-            status = FacialStatusFactory.create(latest_blendshapes)
+
+            # <-- Pass microphone state into the factory
+            status = FacialStatusFactory.create(latest_blendshapes, is_talking=audio_processor.is_talking)
 
             # 4. Select and Display Assets
             cat_image_path = png_selector.select_image(status)
-            
+
             video_capture.draw_landmarks(image, latest_landmarks)
             video_capture.show_frame(image)
             video_capture.show_cat(cat_image_path, facial_status=status)
@@ -41,9 +46,11 @@ def main():
                 break
     finally:
         # 6. Cleanup
+        audio_processor.terminate()  # <-- Shut down STT/Mic safely
         png_selector.terminate()
         landmarker.terminate()
         video_capture.terminate()
+
 
 if __name__ == "__main__":
     main()
